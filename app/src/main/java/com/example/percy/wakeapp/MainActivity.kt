@@ -103,6 +103,7 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra("startPlayer", true)
         for ((alarmNbr, i) in DELAY_ARRAY.withIndex()) {
             intent.putExtra("alarmNbr", alarmNbr)
+            intent.putExtra("cancelAlarm", false)
             pendingIntent = PendingIntent.getBroadcast(this, i,
                     intent, PendingIntent.FLAG_UPDATE_CURRENT)
             alarmManager.setExact(AlarmManager.RTC_WAKEUP,

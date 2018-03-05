@@ -5,9 +5,11 @@
         android:endColor="#00FF00"
         android:angle="270" />
     <corners android:radius="7dp" />
-    <size
-        android:layout_height="40dp"
-        android:layout_width="40dp"
-        />
+    <padding
+        android:left="8dp"
+        android:right="8dp"
+        android:top="8dp"
+        android:bottom="8dp"/>
+
     <stroke android:width="7px" android:color="#000000" />
 </shape>
