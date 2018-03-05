@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">WakeApp</string>
+    <string name="time">"Time: "</string>
+</resources>
