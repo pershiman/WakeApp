@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.IBinder
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 
@@ -53,12 +54,12 @@ class RingtoneService : Service() {
         }
         when {
             intent!!.extras["alarmNbr"] == 0 -> {
-                mediaPlayer = MediaPlayer.create(this, R.raw.cranebird)
-                Log.d("startPlayingSound", "Cranebird started")
+                mediaPlayer = MediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI)
+                Log.d("startPlayingSound", "Default started")
             }
             intent!!.extras["alarmNbr"] == 1 -> {
-                mediaPlayer = MediaPlayer.create(this, R.raw.nightbird)
-                Log.d("startPlayingSound", "Nightbird started")
+                mediaPlayer = MediaPlayer.create(this, R.raw.cranebird)
+                Log.d("startPlayingSound", "Cranebird started")
             }
             intent!!.extras["alarmNbr"] == 2 -> {
                 mediaPlayer = MediaPlayer.create(this, R.raw.warningbird)

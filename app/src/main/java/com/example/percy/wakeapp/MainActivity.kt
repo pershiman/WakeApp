@@ -89,12 +89,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun setAlarm(intent: Intent, calendar: Calendar) {
         intent.putExtra("startPlayer", true)
+        Log.e("ALARM", calendar.timeInMillis.toString())
         for ((alarmNbr, i) in DELAY_ARRAY.withIndex()) {
             intent.putExtra("alarmNbr", alarmNbr)
             intent.putExtra("cancelAlarm", false)
             pendingIntent = PendingIntent.getBroadcast(this, i,
                     intent, PendingIntent.FLAG_UPDATE_CURRENT)
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP,
+            alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     calendar.timeInMillis + (i * MINUTES_FROM_MILLISEC),
                     pendingIntent)
         }
@@ -104,7 +105,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("END_ALARM", "ALARM CANCELLED")
         for (i in DELAY_ARRAY) {
             pendingIntent = PendingIntent.getBroadcast(this, i,
-                    intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                    intent, PendingIntent.FLAG_NO_CREATE)
             alarmManager.cancel(pendingIntent)
         }
         set_alarm.isChecked = false
