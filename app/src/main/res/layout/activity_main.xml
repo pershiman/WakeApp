@@ -29,7 +29,7 @@
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Set Alarm Off"
+        android:text="SNOOZE/CANCEL"
         android:layout_below="@id/timePicker"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"

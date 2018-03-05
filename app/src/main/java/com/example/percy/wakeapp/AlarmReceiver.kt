@@ -10,6 +10,7 @@ import android.content.Intent
 class AlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
+
         var ringtoneIntent = Intent(context, RingtoneService::class.java)
         ringtoneIntent.putExtra("startPlayer", intent!!.extras.getBoolean("startPlayer"))
         ringtoneIntent.putExtra("alarmNbr", intent!!.extras.getInt("alarmNbr"))

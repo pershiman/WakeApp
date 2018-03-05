@@ -7,10 +7,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.Gravity
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
-import android.view.Gravity
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -86,19 +87,6 @@ class MainActivity : AppCompatActivity() {
         updateText.text = "Alarm set to: $hour1:$minute1"
     }
 
-    private fun cancelAlarm(intent: Intent) {
-        Log.d("END_ALARM", "ALARM CANCELLED")
-        for (i in DELAY_ARRAY) {
-            pendingIntent = PendingIntent.getBroadcast(this, i,
-                    intent, PendingIntent.FLAG_UPDATE_CURRENT)
-            alarmManager.cancel(pendingIntent)
-        }
-        set_alarm.isChecked = false
-        intent.putExtra("cancelAlarm", true)
-        updateText.text = "Alarm off!"
-        sendBroadcast(intent)
-    }
-
     private fun setAlarm(intent: Intent, calendar: Calendar) {
         intent.putExtra("startPlayer", true)
         for ((alarmNbr, i) in DELAY_ARRAY.withIndex()) {
@@ -110,5 +98,18 @@ class MainActivity : AppCompatActivity() {
                     calendar.timeInMillis + (i * MINUTES_FROM_MILLISEC),
                     pendingIntent)
         }
+    }
+
+    private fun cancelAlarm(intent: Intent) {
+        Log.d("END_ALARM", "ALARM CANCELLED")
+        for (i in DELAY_ARRAY) {
+            pendingIntent = PendingIntent.getBroadcast(this, i,
+                    intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            alarmManager.cancel(pendingIntent)
+        }
+        set_alarm.isChecked = false
+        intent.putExtra("cancelAlarm", true)
+        updateText.text = "Alarm off!"
+        sendBroadcast(intent)
     }
 }
