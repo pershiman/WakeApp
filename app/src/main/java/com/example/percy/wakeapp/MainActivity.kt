@@ -12,11 +12,13 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
-
 class MainActivity : AppCompatActivity() {
+
+    private val TAG = MainActivity::class.java.name
 
     private var pendingIntent : PendingIntent? = null
     private lateinit var alarmManager : AlarmManager
+    private lateinit var calendar : Calendar
 
     companion object {
         val DELAY_ARRAY = arrayOf(0, 5, 7)
@@ -26,16 +28,30 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Log.e(TAG, "onCreate called")
+        if(savedInstanceState != null) {
+            Log.d(TAG, "stuff saved")
+            val hour = savedInstanceState.getString("hour")
+            val minute = savedInstanceState.getString("minute")
+            val alarmSet = savedInstanceState.getBoolean("ALARM_SET")
+            calendar = Calendar.getInstance()
+            calendar.set(Calendar.HOUR_OF_DAY, hour.toInt())
+            calendar.set(Calendar.MINUTE, minute.toInt())
+
+            if(alarmSet) {
+                writeAlarmTime(minute, hour)
+                set_alarm.isChecked = true
+            }
+        }
 
         alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        val calendar = Calendar.getInstance()
         var intent = Intent(this, AlarmReceiver::class.java)
 
         set_alarm.setOnClickListener {
-
             if(set_alarm.isChecked) {
-                Log.d("SetOnClick", "CHECKED")
+                Log.d(TAG, "CHECKED")
+                calendar = Calendar.getInstance()
                 calendar.set(Calendar.HOUR_OF_DAY, timePicker.hour)
                 calendar.set(Calendar.MINUTE, timePicker.minute)
 
@@ -43,10 +59,13 @@ class MainActivity : AppCompatActivity() {
                 var minute = timePicker.minute.toString()
 
                 writeAlarmTime(minute, hour)
-
+                if (calendar.before(Calendar.getInstance())) {
+                    Log.d(TAG, "ALARM set before current time. Adding a day")
+                    calendar.add(Calendar.DAY_OF_MONTH, 1)
+                }
                 setAlarm(intent, calendar)
             } else {
-                Log.d("SetOnClick", "UNCHECKED")
+                Log.d(TAG, "UNCHECKED")
                 set_alarm.isChecked = true
                 var toast = Toast.makeText(this, "ALARM ALREADY SET!", Toast.LENGTH_SHORT)
                 toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0)
@@ -63,7 +82,7 @@ class MainActivity : AppCompatActivity() {
                 if(RingtoneService.ALARM_NBR == DELAY_ARRAY.size - 1) {    // Final alarm, cancel pendingIntent
                     cancelAlarm(intent)
                 } else {    // Else; just stop the broadcast
-                    Log.d("END_ALARM", "RINGTONE CANCELLED")
+                    Log.d(TAG, "RINGTONE CANCELLED")
                     var hour = timePicker.hour.toString()
                     var minute = (timePicker.minute + DELAY_ARRAY[RingtoneService.ALARM_NBR + 1]).toString()
                     writeAlarmTime(minute, hour)
@@ -71,6 +90,24 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        Log.e(TAG, "onSaveInstanceState called")
+
+        outState?.let {
+            outState.putSerializable("hour", calendar.get(Calendar.HOUR_OF_DAY))
+            outState.putSerializable("minute", calendar.get(Calendar.MINUTE))
+            outState.putSerializable("ALARM_SET", set_alarm.isChecked)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.e(TAG, "onPause called")
+        var outState = Bundle()
+        onSaveInstanceState(outState)
     }
 
     private fun writeAlarmTime(minute: String, hour: String) {
@@ -89,13 +126,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun setAlarm(intent: Intent, calendar: Calendar) {
         intent.putExtra("startPlayer", true)
-        Log.e("ALARM", calendar.timeInMillis.toString())
+        Log.d("ALARM", calendar.timeInMillis.toString())
+        Log.d("TIME_NOW", Calendar.getInstance().timeInMillis.toString())
+        Log.d("DIFF", (calendar.timeInMillis - Calendar.getInstance().timeInMillis).toString())
         for ((alarmNbr, i) in DELAY_ARRAY.withIndex()) {
             intent.putExtra("alarmNbr", alarmNbr)
             intent.putExtra("cancelAlarm", false)
             pendingIntent = PendingIntent.getBroadcast(this, i,
                     intent, PendingIntent.FLAG_UPDATE_CURRENT)
-            alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP,
                     calendar.timeInMillis + (i * MINUTES_FROM_MILLISEC),
                     pendingIntent)
         }
