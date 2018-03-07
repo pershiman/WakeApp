@@ -12,6 +12,7 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import android.app.PendingIntent
+import android.support.v4.app.TaskStackBuilder
 
 
 /**
@@ -53,9 +54,12 @@ class RingtoneService : Service() {
                 } else {    // When the user tries to cancel the app during a snooze
                     Log.d("STOP_PLAYER", "TRYING TO DISABLE NOTIFICATION")
 
-                    val intent = Intent(this, MathIssueActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    val pendingIntent = PendingIntent.getActivity(this, 123, intent,
+                    val notificationIntent = Intent(this, MathIssueActivity::class.java)
+                    notificationIntent.action = Intent.ACTION_MAIN
+                    notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                    notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+                    val pendingIntent = PendingIntent.getActivity(this, 123, notificationIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_ONE_SHOT)
 
                     val notification = Notification.Builder(this, CHANNEL_ID)

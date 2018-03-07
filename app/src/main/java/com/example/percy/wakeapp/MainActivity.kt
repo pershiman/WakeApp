@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         Log.e(TAG, "onCreate called")
+        Log.e(TAG, this.toString())
         if(savedInstanceState != null) {
             Log.d(TAG, "stuff saved")
             val hour = savedInstanceState.getString("hour")
@@ -83,8 +84,8 @@ class MainActivity : AppCompatActivity() {
                     cancelAlarm(intent)
                 } else {    // Else; just stop the broadcast
                     Log.d(TAG, "RINGTONE CANCELLED")
-                    var hour = timePicker.hour.toString()
-                    var minute = (timePicker.minute + DELAY_ARRAY[RingtoneService.ALARM_NBR + 1]).toString()
+                    var hour = calendar.get(Calendar.HOUR_OF_DAY).toString()
+                    var minute = (calendar.get(Calendar.MINUTE) + DELAY_ARRAY[RingtoneService.ALARM_NBR + 1]).toString()
                     writeAlarmTime(minute, hour)
                     sendBroadcast(intent)
                 }
@@ -95,7 +96,7 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
         Log.e(TAG, "onSaveInstanceState called")
-
+        Log.e(TAG, this.toString())
         outState?.let {
             outState.putSerializable("hour", calendar.get(Calendar.HOUR_OF_DAY))
             outState.putSerializable("minute", calendar.get(Calendar.MINUTE))

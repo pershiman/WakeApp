@@ -34,7 +34,7 @@ class MathIssueActivity : AppCompatActivity() {
         }
 
         go_back.setOnClickListener {
-            super.finish()
+            super.onBackPressed()
         }
     }
 }
