@@ -4,12 +4,15 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -28,6 +31,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setSupportActionBar(findViewById(R.id.toolbar))
+
         Log.e(TAG, "onCreate called")
         Log.e(TAG, this.toString())
         if(savedInstanceState != null) {
@@ -80,8 +85,11 @@ class MainActivity : AppCompatActivity() {
                 cancelAlarm(intent)
             } else if (RingtoneService.mediaPlayer != null) {    // Cancel the ongoing song (if one is ongoing)
                 intent.putExtra("startPlayer", false)
-                if(RingtoneService.ALARM_NBR == DELAY_ARRAY.size - 1) {    // Final alarm, cancel pendingIntent
+                if(RingtoneService.ALARM_NBR == DELAY_ARRAY.size - 1) {    // Final alarm, cancel pendingIntent.
                     cancelAlarm(intent)
+                    // Start webpage
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.svtplay.se/rapport"))
+                    startActivity(browserIntent)
                 } else {    // Else; just stop the broadcast
                     Log.d(TAG, "RINGTONE CANCELLED")
                     var hour = calendar.get(Calendar.HOUR_OF_DAY).toString()
@@ -90,6 +98,22 @@ class MainActivity : AppCompatActivity() {
                     sendBroadcast(intent)
                 }
             }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        return when (item.itemId) {
+            R.id.action_settings -> true
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

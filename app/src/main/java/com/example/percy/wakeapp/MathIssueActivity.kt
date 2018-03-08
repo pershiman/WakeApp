@@ -12,6 +12,8 @@ import java.util.*
  */
 class MathIssueActivity : AppCompatActivity() {
 
+    private val TAG = MathIssueActivity::class.java.name
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.math_view)
@@ -27,7 +29,7 @@ class MathIssueActivity : AppCompatActivity() {
             val answer = if (answer_text.text.toString().isBlank()) 999 else answer_text.text.toString().toInt()
 
             if(answer == correctAnswer) {
-                Log.d("SUBMIT ANSWER", "CORRECT ANSWER")
+                Log.d(TAG, "CORRECT ANSWER")
             } else {
                 Toast.makeText(this,"Incorrect answer", Toast.LENGTH_LONG).show()
             }

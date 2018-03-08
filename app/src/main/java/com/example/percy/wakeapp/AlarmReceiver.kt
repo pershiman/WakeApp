@@ -12,9 +12,12 @@ class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
 
         var ringtoneIntent = Intent(context, RingtoneService::class.java)
-        ringtoneIntent.putExtra("startPlayer", intent!!.extras.getBoolean("startPlayer"))
-        ringtoneIntent.putExtra("alarmNbr", intent!!.extras.getInt("alarmNbr"))
-        ringtoneIntent.putExtra("cancelAlarm", intent?.extras.getBoolean("cancelAlarm"))
+
+        intent?.let {
+            ringtoneIntent.putExtra("startPlayer", intent.extras.getBoolean("startPlayer"))
+            ringtoneIntent.putExtra("alarmNbr", intent.extras.getInt("alarmNbr"))
+            ringtoneIntent.putExtra("cancelAlarm", intent.extras.getBoolean("cancelAlarm"))
+        }
         context?.startService(ringtoneIntent)
     }
 }
