@@ -17,6 +17,7 @@ class AlarmReceiver : BroadcastReceiver() {
             ringtoneIntent.putExtra("startPlayer", intent.extras.getBoolean("startPlayer"))
             ringtoneIntent.putExtra("alarmNbr", intent.extras.getInt("alarmNbr"))
             ringtoneIntent.putExtra("cancelAlarm", intent.extras.getBoolean("cancelAlarm"))
+            ringtoneIntent.putExtra("alarmType", intent.extras.getInt("alarmType"))
         }
         context?.startService(ringtoneIntent)
     }

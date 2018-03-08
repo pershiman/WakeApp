@@ -6,6 +6,9 @@ import android.util.Log
 import android.widget.Toast
 import kotlinx.android.synthetic.main.math_view.*
 import java.util.*
+import android.content.Intent
+
+
 
 /**
  * Created by percy on 2018-03-06.
@@ -29,13 +32,20 @@ class MathIssueActivity : AppCompatActivity() {
             val answer = if (answer_text.text.toString().isBlank()) 999 else answer_text.text.toString().toInt()
 
             if(answer == correctAnswer) {
-                Log.d(TAG, "CORRECT ANSWER")
+                Log.d(TAG, "CORRECT ANSWER, will disable alarm")
+                val intent = Intent()
+                intent.putExtra("MESSAGE", "CORRECT_ANSWER")
+                setResult(0, intent)
+                finishActivity(2)//finishing activity
             } else {
                 Toast.makeText(this,"Incorrect answer", Toast.LENGTH_LONG).show()
             }
         }
 
         go_back.setOnClickListener {
+            val intent = Intent()
+            intent.putExtra("MESSAGE", "CANCEL")
+            setResult(1, intent)
             super.onBackPressed()
         }
     }

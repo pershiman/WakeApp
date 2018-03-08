@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.preference.PreferenceManager
 import android.util.Log
 import android.view.Gravity
 import android.view.Menu
@@ -15,6 +16,7 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
 
+
 class MainActivity : AppCompatActivity() {
 
     private val TAG = MainActivity::class.java.name
@@ -22,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private var pendingIntent : PendingIntent? = null
     private lateinit var alarmManager : AlarmManager
     private lateinit var calendar : Calendar
+    var alarmType : Int? = null
 
     companion object {
         val DELAY_ARRAY = arrayOf(0, 5, 7)
@@ -33,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
 
+        calendar = Calendar.getInstance()
         Log.e(TAG, "onCreate called")
         Log.e(TAG, this.toString())
         if(savedInstanceState != null) {
@@ -81,9 +85,9 @@ class MainActivity : AppCompatActivity() {
 
         end_alarm.setOnClickListener {
             // Cancel alarm when player hasn't started yet
-            if(pendingIntent != null && RingtoneService.mediaPlayer == null) {
+            if(pendingIntent != null && RingtoneService.mMediaPlayer == null) {
                 cancelAlarm(intent)
-            } else if (RingtoneService.mediaPlayer != null) {    // Cancel the ongoing song (if one is ongoing)
+            } else if (RingtoneService.mMediaPlayer != null) {    // Cancel the ongoing song (if one is ongoing)
                 intent.putExtra("startPlayer", false)
                 if(RingtoneService.ALARM_NBR == DELAY_ARRAY.size - 1) {    // Final alarm, cancel pendingIntent.
                     cancelAlarm(intent)
@@ -99,6 +103,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -112,7 +118,11 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_settings -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -150,13 +160,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setAlarm(intent: Intent, calendar: Calendar) {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        alarmType = sharedPref.getString(SettingsActivity.KEY_PREF_ALARM_TYPE, "0").toInt()
+
         intent.putExtra("startPlayer", true)
-        Log.d("ALARM", calendar.timeInMillis.toString())
-        Log.d("TIME_NOW", Calendar.getInstance().timeInMillis.toString())
-        Log.d("DIFF", (calendar.timeInMillis - Calendar.getInstance().timeInMillis).toString())
+        intent.putExtra("cancelAlarm", false)
+        intent.putExtra("alarmType", alarmType!!)
+        Log.d(TAG, (calendar.timeInMillis - Calendar.getInstance().timeInMillis).toString())
+
+        Log.d(TAG, "ALARMTYPE: $alarmType")
         for ((alarmNbr, i) in DELAY_ARRAY.withIndex()) {
             intent.putExtra("alarmNbr", alarmNbr)
-            intent.putExtra("cancelAlarm", false)
             pendingIntent = PendingIntent.getBroadcast(this, i,
                     intent, PendingIntent.FLAG_UPDATE_CURRENT)
             alarmManager.setExact(AlarmManager.RTC_WAKEUP,
@@ -176,5 +190,17 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra("cancelAlarm", true)
         updateText.text = "Alarm off!"
         sendBroadcast(intent)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.e(TAG, "In onActivityResult")
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(resultCode == 0) {
+            Log.d(TAG, "Cancel alarm")
+            cancelAlarm(Intent(this, AlarmReceiver::class.java))
+        } else if (resultCode == 1) {
+            Log.d(TAG, "Cancel pressed, do nothing")
+        }
     }
 }

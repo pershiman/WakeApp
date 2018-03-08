@@ -3,7 +3,6 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
-import android.media.RingtoneManager
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
@@ -16,7 +15,7 @@ import android.widget.Toast
 class RingtoneService : Service() {
 
     companion object {
-        var mediaPlayer: MediaPlayer? = null
+        var mMediaPlayer: MediaPlayer? = null
         var ALARM_NBR : Int = 0
         const val NOTIFICATION_ID = 123
         const val CHANNEL_ID = "my_channel_01"
@@ -34,9 +33,9 @@ class RingtoneService : Service() {
         when {
             intent!!.extras["cancelAlarm"] == true -> {
                 Log.d(TAG, "Cancel alarm")
-                mediaPlayer?.stop()
-                mediaPlayer?.release()
-                mediaPlayer = null
+                mMediaPlayer?.stop()
+                mMediaPlayer?.release()
+                mMediaPlayer = null
                 ALARM_NBR = 0
             }
             intent.extras["startPlayer"] == true -> {
@@ -52,9 +51,9 @@ class RingtoneService : Service() {
     }
 
     private fun stopPlayingSound() {
-        if (mediaPlayer!!.isPlaying) {
+        if (mMediaPlayer!!.isPlaying) {
             Log.d(TAG, "MEDIA PLAYER IS PLAYING")
-            mediaPlayer?.stop()
+            mMediaPlayer?.stop()
         } else {    // When the user tries to cancel the app during a snooze
             Log.d(TAG, "TRYING TO DISABLE NOTIFICATION")
 
@@ -65,6 +64,7 @@ class RingtoneService : Service() {
 
             val pendingIntent = PendingIntent.getActivity(this, 123, notificationIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_ONE_SHOT)
+
 
             val notification = Notification.Builder(this, CHANNEL_ID)
                     .setContentTitle("DISABLE SNOOZE")
@@ -84,27 +84,87 @@ class RingtoneService : Service() {
 
     private fun startPlayingSound(intent: Intent?) {
         ALARM_NBR = intent!!.getIntExtra("alarmNbr", 0)
+        val alarmType = intent!!.getIntExtra("alarmType", 0)
 
-        if (mediaPlayer != null) {
-            mediaPlayer?.release()
-            mediaPlayer = null
+        if (mMediaPlayer != null) {
+            mMediaPlayer?.release()
+            mMediaPlayer = null
         }
-        when {
-            intent.extras["alarmNbr"] == 0 -> {
-                mediaPlayer = MediaPlayer.create(this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE))
-                Log.d(TAG, "Default started")
+        mMediaPlayer = MediaPlayer.create(this, pickAlarmTune(ALARM_NBR, alarmType))
+
+        mMediaPlayer?.isLooping = true
+        mMediaPlayer?.start()
+    }
+
+    private fun pickAlarmTune(alarmNbr: Int, alarmType: Int) : Int {
+
+        return when (alarmType) {
+            0 -> // Bird
+                return when (alarmNbr) {
+                    0 -> {
+                        Log.d(TAG, "Cranebird started")
+                        R.raw.cranebird
+                    }
+                    1 -> {
+                        Log.d(TAG, "Nightbird started")
+                        R.raw.nightbird
+                    }
+                    2 -> {
+                        Log.d(TAG, "Warningbird started")
+                        R.raw.warningbird
+                    }
+                    else -> R.raw.cranebird
+                }
+            1 -> // Cat
+                return when (alarmNbr) {
+                    0 -> {
+                        Log.d(TAG, "Funny cat started")
+                        R.raw.funnycat
+                    }
+                    1 -> {
+                        Log.d(TAG, "Sad cat started")
+                        R.raw.sadcat
+                    }
+                    2 -> {
+                        Log.d(TAG, "Angry cat started")
+                        R.raw.angrycat
+                    }
+                    else -> R.raw.funnycat
+                }
+            2 -> // Classic music
+                return when (alarmNbr) {
+                0 -> {
+                    Log.d(TAG, "Canond alarm started")
+                    R.raw.canondpiano
+                }
+                1 -> {
+                    Log.d(TAG, "Swanlake alarm started")
+                    R.raw.swanlake
+                }
+                2 -> {
+                    Log.d(TAG, "Classicguitar alarm started")
+                    R.raw.classicguitar
+                }
+                else -> R.raw.canondpiano
             }
-            intent.extras["alarmNbr"] == 1 -> {
-                mediaPlayer = MediaPlayer.create(this, R.raw.cranebird)
-                Log.d(TAG, "Cranebird started")
-            }
-            intent.extras["alarmNbr"] == 2 -> {
-                mediaPlayer = MediaPlayer.create(this, R.raw.warningbird)
-                Log.d(TAG, "Warningbird started")
-            }
-            else -> return
+            3 -> // Alarm
+                return when (alarmNbr) {
+                    0 -> {
+                        Log.d(TAG, "Soft alarm started")
+                        R.raw.softalarm
+                    }
+                    1 -> {
+                        Log.d(TAG, "Happy alarm started")
+                        R.raw.happyalarm
+                    }
+                    2 -> {
+                        Log.d(TAG, "Annoying alarm started")
+                        R.raw.annoyingalarm
+                    }
+                    else -> R.raw.softalarm
+                }
+            else -> R.raw.cranebird
         }
-        mediaPlayer?.start()
     }
 
     override fun onDestroy() {
