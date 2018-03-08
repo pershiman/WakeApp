@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Choose alarm type">
+        <android.support.v7.preference.ListPreference
+            android:title="Pick alarmtype"
+            android:key="alarmPref"
+            android:defaultValue="0"
+            android:entries="@array/alarmType"
+            android:entryValues="@array/alarmValues" />
+    </PreferenceCategory>
+</PreferenceScreen>
