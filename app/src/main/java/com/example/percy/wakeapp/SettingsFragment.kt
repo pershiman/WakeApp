@@ -5,7 +5,6 @@ import android.app.Fragment
 import android.os.Bundle
 import android.support.v7.preference.PreferenceFragmentCompat
 
-
 /**
  * A simple [Fragment] subclass.
  */

@@ -2,6 +2,7 @@ package com.example.percy.wakeapp
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 
 class SettingsActivity : AppCompatActivity() {
 

@@ -7,7 +7,7 @@
             android:title="Pick alarmtype"
             android:key="alarmPref"
             android:defaultValue="0"
-            android:entries="@array/alarmType"
-            android:entryValues="@array/alarmValues" />
+            android:entries="@array/alarmTypeArray"
+            android:entryValues="@array/alarmValuesArray" />
     </PreferenceCategory>
 </PreferenceScreen>

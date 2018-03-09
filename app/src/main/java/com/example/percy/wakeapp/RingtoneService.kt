@@ -2,7 +2,6 @@ package com.example.percy.wakeapp
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.IBinder

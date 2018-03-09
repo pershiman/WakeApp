@@ -29,6 +29,9 @@ class MainActivity : AppCompatActivity() {
     companion object {
         val DELAY_ARRAY = arrayOf(0, 5, 7)
         const val MINUTES_FROM_MILLISEC = 60 * 1000
+        const val HOUR_TAG = "hour"
+        const val MINUTE_TAG = "minute"
+        const val ALARM_SET_TAG = "alarmSet"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,20 +42,10 @@ class MainActivity : AppCompatActivity() {
         calendar = Calendar.getInstance()
         Log.e(TAG, "onCreate called")
         Log.e(TAG, this.toString())
-        if(savedInstanceState != null) {
-            Log.d(TAG, "stuff saved")
-            val hour = savedInstanceState.getString("hour")
-            val minute = savedInstanceState.getString("minute")
-            val alarmSet = savedInstanceState.getBoolean("ALARM_SET")
-            calendar = Calendar.getInstance()
-            calendar.set(Calendar.HOUR_OF_DAY, hour.toInt())
-            calendar.set(Calendar.MINUTE, minute.toInt())
 
-            if(alarmSet) {
-                writeAlarmTime(minute, hour)
-                set_alarm.isChecked = true
-            }
-        }
+        displayAlarmType()
+
+        restoreInstance(savedInstanceState)
 
         alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
@@ -107,6 +100,30 @@ class MainActivity : AppCompatActivity() {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }
 
+    private fun displayAlarmType() {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        alarmType = sharedPref.getString(SettingsActivity.KEY_PREF_ALARM_TYPE, "0").toInt()
+        val alarmTypes = resources.getStringArray(R.array.alarmTypeArray)
+        Toast.makeText(this, "AlarmType: " + alarmTypes[alarmType!!], Toast.LENGTH_SHORT).show()
+    }
+
+    private fun restoreInstance(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null && savedInstanceState.getBoolean("ALARM_SET")) {
+            Log.d(TAG, "stuff restored")
+            val hour = savedInstanceState.getString(HOUR_TAG)
+            val minute = savedInstanceState.getString(MINUTE_TAG)
+            val alarmSet = savedInstanceState.getBoolean(ALARM_SET_TAG)
+            calendar = Calendar.getInstance()
+            calendar.set(Calendar.HOUR_OF_DAY, hour.toInt())
+            calendar.set(Calendar.MINUTE, minute.toInt())
+
+            if (alarmSet) {
+                writeAlarmTime(minute, hour)
+                set_alarm.isChecked = true
+            }
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -127,28 +144,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {  // Ugly solution. Shouldn't use alarmManager if this behaviour is desired
-        super.onDestroy()
-        cancelAlarm(Intent(this, AlarmReceiver::class.java))
-        Log.e(TAG, "Destroy called, cancel Alarms")
+    override fun onRestart() {
+        super.onRestart()
+        Log.e(TAG, "onRestart called")
+        displayAlarmType()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
         Log.e(TAG, "onSaveInstanceState called")
         Log.e(TAG, this.toString())
-        outState?.let {
-            outState.putSerializable("hour", calendar.get(Calendar.HOUR_OF_DAY))
-            outState.putSerializable("minute", calendar.get(Calendar.MINUTE))
-            outState.putSerializable("ALARM_SET", set_alarm.isChecked)
+        outState?.apply {
+            putSerializable(HOUR_TAG, calendar.get(Calendar.HOUR_OF_DAY))
+            putSerializable(MINUTE_TAG, calendar.get(Calendar.MINUTE))
+            putSerializable(ALARM_SET_TAG, set_alarm.isChecked)
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.e(TAG, "onPause called")
-        var outState = Bundle()
-        onSaveInstanceState(outState)
     }
 
     private fun writeAlarmTime(minute: String, hour: String) {
