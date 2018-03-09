@@ -2,6 +2,7 @@ package com.example.percy.wakeapp
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.IBinder
@@ -22,6 +23,7 @@ class RingtoneService : Service() {
     }
 
     private val TAG = RingtoneService::class.java.name
+
 
     override fun onBind(intent: Intent?): IBinder {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -66,12 +68,21 @@ class RingtoneService : Service() {
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_ONE_SHOT)
 
 
-            val notification = Notification.Builder(this, CHANNEL_ID)
-                    .setContentTitle("DISABLE SNOOZE")
-                    .setContentText("Click to disable snooze")
-                    .setSmallIcon(R.drawable.ic_disable_snooze)
-                    .setContentIntent(pendingIntent)
-                    .setAutoCancel(true)
+            val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Notification.Builder(this, CHANNEL_ID)
+                        .setContentTitle("DISABLE SNOOZE")
+                        .setContentText("Click to disable snooze")
+                        .setSmallIcon(R.drawable.ic_disable_snooze)
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true)
+            } else {
+                Notification.Builder(this)
+                        .setContentTitle("DISABLE SNOOZE")
+                        .setContentText("Click to disable snooze")
+                        .setSmallIcon(R.drawable.ic_disable_snooze)
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true)
+            }
 
             val mNotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -127,6 +127,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {  // Ugly solution. Shouldn't use alarmManager if this behaviour is desired
+        super.onDestroy()
+        cancelAlarm(Intent(this, AlarmReceiver::class.java))
+        Log.e(TAG, "Destroy called, cancel Alarms")
+    }
+
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
         Log.e(TAG, "onSaveInstanceState called")
