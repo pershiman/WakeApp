@@ -17,6 +17,10 @@ class MathIssueActivity : AppCompatActivity() {
 
     private val TAG = MathIssueActivity::class.java.name
 
+    companion object {
+        var CORRECT_ANSWER = false
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.math_view)
@@ -33,10 +37,8 @@ class MathIssueActivity : AppCompatActivity() {
 
             if(answer == correctAnswer) {
                 Log.d(TAG, "CORRECT ANSWER, will disable alarm")
-                val intent = Intent()
-                intent.putExtra("MESSAGE", "CORRECT_ANSWER")
-                setResult(0, intent)
-                finishActivity(2)//finishing activity
+                CORRECT_ANSWER = true
+                finish()
             } else {
                 Toast.makeText(this,"Incorrect answer", Toast.LENGTH_LONG).show()
             }

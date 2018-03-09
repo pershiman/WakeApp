@@ -13,6 +13,7 @@ import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import com.example.percy.wakeapp.MathIssueActivity.Companion.CORRECT_ANSWER
 import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
 
@@ -83,10 +84,7 @@ class MainActivity : AppCompatActivity() {
             } else if (RingtoneService.mMediaPlayer != null) {    // Cancel the ongoing song (if one is ongoing)
                 intent.putExtra("startPlayer", false)
                 if(RingtoneService.ALARM_NBR == DELAY_ARRAY.size - 1) {    // Final alarm, cancel pendingIntent.
-                    cancelAlarm(intent)
-                    // Start webpage
-                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.svtplay.se/rapport"))
-                    startActivity(browserIntent)
+                    cancelAlarmAndOpenWebpage(intent)
                 } else {    // Else; just stop the broadcast
                     Log.d(TAG, "RINGTONE CANCELLED")
                     var hour = calendar.get(Calendar.HOUR_OF_DAY).toString()
@@ -99,6 +97,8 @@ class MainActivity : AppCompatActivity() {
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }
+
+
 
     private fun displayAlarmType() {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
@@ -147,7 +147,14 @@ class MainActivity : AppCompatActivity() {
     override fun onRestart() {
         super.onRestart()
         Log.e(TAG, "onRestart called")
-        displayAlarmType()
+
+        if(CORRECT_ANSWER) {
+            CORRECT_ANSWER = false
+            Toast.makeText(this, "CORRECT ANSWER: ALARM CANCELLED", Toast.LENGTH_SHORT).show()
+            cancelAlarmAndOpenWebpage(Intent(this, MainActivity::class.java))
+        } else {
+            displayAlarmType()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -195,6 +202,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun cancelAlarmAndOpenWebpage(intent: Intent) {
+        cancelAlarm(intent)
+
+        // Start webpage
+        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.svtplay.se/rapport"))
+        startActivity(browserIntent)
+    }
+
     private fun cancelAlarm(intent: Intent) {
         Log.d("END_ALARM", "ALARM CANCELLED")
         for (i in DELAY_ARRAY) {
@@ -206,17 +221,5 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra("cancelAlarm", true)
         updateText.text = "Alarm off!"
         sendBroadcast(intent)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.e(TAG, "In onActivityResult")
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if(resultCode == 0) {
-            Log.d(TAG, "Cancel alarm")
-            cancelAlarm(Intent(this, AlarmReceiver::class.java))
-        } else if (resultCode == 1) {
-            Log.d(TAG, "Cancel pressed, do nothing")
-        }
     }
 }
