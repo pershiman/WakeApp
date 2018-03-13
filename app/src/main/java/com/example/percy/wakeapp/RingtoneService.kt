@@ -56,7 +56,7 @@ class RingtoneService : Service() {
             Log.d(TAG, "MEDIA PLAYER IS PLAYING")
             mMediaPlayer?.stop()
         } else {    // When the user tries to cancel the app during a snooze
-            Log.d(TAG, "TRYING TO DISABLE NOTIFICATION")
+            Log.d(TAG, "SENDING DISABLE NOTIFICATION")
 
             val notificationIntent = Intent(this, MathIssueActivity::class.java)
             notificationIntent.action = Intent.ACTION_MAIN
@@ -66,27 +66,27 @@ class RingtoneService : Service() {
             val pendingIntent = PendingIntent.getActivity(this, 123, notificationIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_ONE_SHOT)
 
-
+            val mNotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val mChannel = NotificationChannel(CHANNEL_ID, "someChannelName", NotificationManager.IMPORTANCE_HIGH)
+                mNotificationManager.createNotificationChannel(mChannel)
+
                 Notification.Builder(this, CHANNEL_ID)
                         .setContentTitle("DISABLE SNOOZE")
                         .setContentText("Click to disable snooze")
                         .setSmallIcon(R.drawable.ic_disable_snooze)
                         .setContentIntent(pendingIntent)
+                        .setPriority(NotificationManager.IMPORTANCE_HIGH)
                         .setAutoCancel(true)
+
             } else {
                 Notification.Builder(this)
                         .setContentTitle("DISABLE SNOOZE")
                         .setContentText("Click to disable snooze")
                         .setSmallIcon(R.drawable.ic_disable_snooze)
                         .setContentIntent(pendingIntent)
+                        .setPriority(Notification.PRIORITY_HIGH)
                         .setAutoCancel(true)
-            }
-
-            val mNotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val mChannel = NotificationChannel(CHANNEL_ID, "someChannelName", NotificationManager.IMPORTANCE_HIGH)
-                mNotificationManager.createNotificationChannel(mChannel)
             }
             mNotificationManager.notify(NOTIFICATION_ID, notification.build())
         }

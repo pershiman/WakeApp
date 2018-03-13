@@ -5,50 +5,52 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/AppThemeDark"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.percy.wakeapp.MainActivity"
-    tools:showIn="@layout/activity_main"
-    android:id="@+id/activity_main">
+    tools:showIn="@layout/activity_main">
 
     <TimePicker
         android:id="@+id/timePicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:scaleX="0.7"
+        android:scaleY="0.7"
+        android:layout_marginTop="-50dp"
+        android:layout_marginBottom="-60dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 
     <ToggleButton
         android:id="@+id/set_alarm"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/end_alarm"
+        android:layout_marginEnd="15dp"
+        android:layout_toStartOf="@+id/updateText"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
         android:textOff="Set Alarm On"
-        android:textOn="Alarm set"
-        android:layout_marginTop="20dp"
-        android:layout_below="@id/timePicker"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:textOn="Alarm set" />
 
     <Button
         android:id="@+id/end_alarm"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SNOOZE/CANCEL"
-        android:layout_marginTop="20dp"
-        android:layout_below="@id/timePicker"
+        android:layout_alignBottom="@+id/updateText"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/button_border"/>
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/button_border"
+        android:text="SNOOZE/CANCEL"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
 
     <TextView
         android:id="@+id/updateText"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/set_alarm"
-        android:layout_marginTop="12dp"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="Did you set the alarm?" />
+        android:layout_marginBottom="5dp"
+        android:text="Did you set the alarm?"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
 
 </RelativeLayout>

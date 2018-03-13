@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     private var pendingIntent : PendingIntent? = null
     private lateinit var alarmManager : AlarmManager
     private lateinit var calendar : Calendar
-    var alarmType : Int? = null
+    private var alarmType : Int? = null
 
     companion object {
         val DELAY_ARRAY = arrayOf(0, 5, 7)
@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
 
         alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        var intent = Intent(this, AlarmReceiver::class.java)
+        var alarmIntent = Intent(this, AlarmReceiver::class.java)
 
         set_alarm.setOnClickListener {
             if(set_alarm.isChecked) {
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "ALARM set before current time. Adding a day")
                     calendar.add(Calendar.DAY_OF_MONTH, 1)
                 }
-                setAlarm(intent, calendar)
+                setAlarm(alarmIntent, calendar)
             } else {
                 Log.d(TAG, "UNCHECKED")
                 set_alarm.isChecked = true
@@ -80,22 +80,22 @@ class MainActivity : AppCompatActivity() {
         end_alarm.setOnClickListener {
             // Cancel alarm when player hasn't started yet
             if(pendingIntent != null && RingtoneService.mMediaPlayer == null) {
-                cancelAlarm(intent)
+                cancelAlarm(alarmIntent)
             } else if (RingtoneService.mMediaPlayer != null) {    // Cancel the ongoing song (if one is ongoing)
-                intent.putExtra("startPlayer", false)
+                alarmIntent.putExtra("startPlayer", false)
                 if(RingtoneService.ALARM_NBR == DELAY_ARRAY.size - 1) {    // Final alarm, cancel pendingIntent.
-                    cancelAlarmAndOpenWebpage(intent)
+                    cancelAlarmAndOpenWebPage(alarmIntent)
                 } else {    // Else; just stop the broadcast
                     Log.d(TAG, "RINGTONE CANCELLED")
                     var hour = calendar.get(Calendar.HOUR_OF_DAY).toString()
                     var minute = (calendar.get(Calendar.MINUTE) + DELAY_ARRAY[RingtoneService.ALARM_NBR + 1]).toString()
                     writeAlarmTime(minute, hour)
-                    sendBroadcast(intent)
+                    sendBroadcast(alarmIntent)
                 }
             }
         }
 
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
     }
 
 
@@ -108,17 +108,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun restoreInstance(savedInstanceState: Bundle?) {
-        if (savedInstanceState != null && savedInstanceState.getBoolean("ALARM_SET")) {
+        Log.e(TAG, "Saved instance: $savedInstanceState")
+        if (savedInstanceState != null && savedInstanceState.getBoolean(ALARM_SET_TAG)) {
             Log.d(TAG, "stuff restored")
-            val hour = savedInstanceState.getString(HOUR_TAG)
-            val minute = savedInstanceState.getString(MINUTE_TAG)
+            val hour = savedInstanceState.getInt(HOUR_TAG)
+            val minute = savedInstanceState.getInt(MINUTE_TAG)
             val alarmSet = savedInstanceState.getBoolean(ALARM_SET_TAG)
             calendar = Calendar.getInstance()
-            calendar.set(Calendar.HOUR_OF_DAY, hour.toInt())
-            calendar.set(Calendar.MINUTE, minute.toInt())
+            calendar.set(Calendar.HOUR_OF_DAY, hour)
+            calendar.set(Calendar.MINUTE, minute)
 
             if (alarmSet) {
-                writeAlarmTime(minute, hour)
+                writeAlarmTime(minute.toString(), hour.toString())
                 set_alarm.isChecked = true
             }
         }
@@ -151,7 +152,7 @@ class MainActivity : AppCompatActivity() {
         if(CORRECT_ANSWER) {
             CORRECT_ANSWER = false
             Toast.makeText(this, "CORRECT ANSWER: ALARM CANCELLED", Toast.LENGTH_SHORT).show()
-            cancelAlarmAndOpenWebpage(Intent(this, MainActivity::class.java))
+            cancelAlarmAndOpenWebPage(Intent(this, AlarmReceiver::class.java))
         } else {
             displayAlarmType()
         }
@@ -159,12 +160,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
-        Log.e(TAG, "onSaveInstanceState called")
-        Log.e(TAG, this.toString())
         outState?.apply {
-            putSerializable(HOUR_TAG, calendar.get(Calendar.HOUR_OF_DAY))
-            putSerializable(MINUTE_TAG, calendar.get(Calendar.MINUTE))
-            putSerializable(ALARM_SET_TAG, set_alarm.isChecked)
+            Log.e(TAG, "Saving in onSaveInstanceState")
+            putInt(HOUR_TAG, calendar.get(Calendar.HOUR_OF_DAY))
+            putInt(MINUTE_TAG, calendar.get(Calendar.MINUTE))
+            putBoolean(ALARM_SET_TAG, set_alarm.isChecked)
         }
     }
 
@@ -202,16 +202,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun cancelAlarmAndOpenWebpage(intent: Intent) {
-        cancelAlarm(intent)
-
-        // Start webpage
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.svtplay.se/rapport"))
+    private fun cancelAlarmAndOpenWebPage(intent: Intent) {
+        // Start webPage
+        Log.d(TAG, "Starting webPage")
+        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.svtplay.se/rapport"))
+        browserIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         startActivity(browserIntent)
+        cancelAlarm(intent)
     }
 
     private fun cancelAlarm(intent: Intent) {
-        Log.d("END_ALARM", "ALARM CANCELLED")
+        Log.d(TAG, "ALARM CANCELLED")
         for (i in DELAY_ARRAY) {
             pendingIntent = PendingIntent.getBroadcast(this, i,
                     intent, PendingIntent.FLAG_NO_CREATE)
