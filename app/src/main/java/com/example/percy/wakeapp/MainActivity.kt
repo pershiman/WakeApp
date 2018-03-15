@@ -4,8 +4,12 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.support.customtabs.CustomTabsClient
+import android.support.customtabs.CustomTabsIntent
+import android.support.customtabs.CustomTabsSession
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.preference.PreferenceManager
 import android.util.Log
@@ -16,13 +20,14 @@ import android.widget.Toast
 import com.example.percy.wakeapp.MathIssueActivity.Companion.CORRECT_ANSWER
 import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
-
+import android.content.ComponentName
+import android.support.customtabs.CustomTabsServiceConnection
+import android.support.customtabs.CustomTabsCallback
 
 class MainActivity : AppCompatActivity() {
 
     private val TAG = MainActivity::class.java.name
 
-    private var pendingIntent : PendingIntent? = null
     private lateinit var alarmManager : AlarmManager
     private lateinit var calendar : Calendar
     private var alarmType : Int? = null
@@ -79,7 +84,7 @@ class MainActivity : AppCompatActivity() {
 
         end_alarm.setOnClickListener {
             // Cancel alarm when player hasn't started yet
-            if(pendingIntent != null && RingtoneService.mMediaPlayer == null) {
+            if(set_alarm.isChecked && RingtoneService.mMediaPlayer == null) {
                 cancelAlarm(alarmIntent)
             } else if (RingtoneService.mMediaPlayer != null) {    // Cancel the ongoing song (if one is ongoing)
                 alarmIntent.putExtra("startPlayer", false)
@@ -194,7 +199,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "ALARMTYPE: $alarmType")
         for ((alarmNbr, i) in DELAY_ARRAY.withIndex()) {
             intent.putExtra("alarmNbr", alarmNbr)
-            pendingIntent = PendingIntent.getBroadcast(this, i,
+            val pendingIntent = PendingIntent.getBroadcast(this, i,
                     intent, PendingIntent.FLAG_UPDATE_CURRENT)
             alarmManager.setExact(AlarmManager.RTC_WAKEUP,
                     calendar.timeInMillis + (i * MINUTES_FROM_MILLISEC),
@@ -203,18 +208,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun cancelAlarmAndOpenWebPage(intent: Intent) {
-        // Start webPage
-        Log.d(TAG, "Starting webPage")
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.svtplay.se/rapport"))
-        browserIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-        startActivity(browserIntent)
+        startWebPage()
         cancelAlarm(intent)
+    }
+
+    private fun startWebPage() {
+        Log.e(TAG, "start webPage")
+        val builder = CustomTabsIntent.Builder()
+        builder.setToolbarColor(Color.BLUE)
+        // Application exit animation, Chrome enter animation.
+        builder.setStartAnimations(this@MainActivity, R.anim.slide_in_right, R.anim.slide_out_left)
+        builder.setExitAnimations(this@MainActivity, android.R.anim.slide_in_left,
+                android.R.anim.slide_out_right)
+
+        val customTabsIntent = builder.build()
+        customTabsIntent.launchUrl(this@MainActivity, Uri.parse("http://www.svtplay.se/rapport"))
     }
 
     private fun cancelAlarm(intent: Intent) {
         Log.d(TAG, "ALARM CANCELLED")
         for (i in DELAY_ARRAY) {
-            pendingIntent = PendingIntent.getBroadcast(this, i,
+            val pendingIntent = PendingIntent.getBroadcast(this, i,
                     intent, PendingIntent.FLAG_NO_CREATE)
             alarmManager.cancel(pendingIntent)
         }

@@ -7,8 +7,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.percy.wakeapp.MainActivity"
-    tools:showIn="@layout/activity_main"
-    android:id="@+id/activity_main">
+    tools:showIn="@layout/activity_main">
 
     <TimePicker
         android:id="@+id/timePicker"

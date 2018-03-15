@@ -1,4 +1,5 @@
 package com.example.percy.wakeapp
+import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
 import android.content.Intent
@@ -67,28 +68,35 @@ class RingtoneService : Service() {
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_ONE_SHOT)
 
             val mNotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val mChannel = NotificationChannel(CHANNEL_ID, "someChannelName", NotificationManager.IMPORTANCE_HIGH)
-                mNotificationManager.createNotificationChannel(mChannel)
 
-                Notification.Builder(this, CHANNEL_ID)
-                        .setContentTitle("DISABLE SNOOZE")
-                        .setContentText("Click to disable snooze")
-                        .setSmallIcon(R.drawable.ic_disable_snooze)
-                        .setContentIntent(pendingIntent)
-                        .setPriority(NotificationManager.IMPORTANCE_HIGH)
-                        .setAutoCancel(true)
 
-            } else {
-                Notification.Builder(this)
-                        .setContentTitle("DISABLE SNOOZE")
-                        .setContentText("Click to disable snooze")
-                        .setSmallIcon(R.drawable.ic_disable_snooze)
-                        .setContentIntent(pendingIntent)
-                        .setPriority(Notification.PRIORITY_HIGH)
-                        .setAutoCancel(true)
-            }
+            val notification = createNotification(mNotificationManager, pendingIntent)
             mNotificationManager.notify(NOTIFICATION_ID, notification.build())
+        }
+    }
+
+    @SuppressLint("NewApi")
+    private fun createNotification(mNotificationManager: NotificationManager, pendingIntent: PendingIntent?): Notification.Builder {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val mChannel = NotificationChannel(CHANNEL_ID, "someChannelName", NotificationManager.IMPORTANCE_HIGH)
+            mNotificationManager.createNotificationChannel(mChannel)
+
+            Notification.Builder(this, CHANNEL_ID)
+                    .setContentTitle("DISABLE SNOOZE")
+                    .setContentText("Click to disable snooze")
+                    .setSmallIcon(R.drawable.ic_disable_snooze)
+                    .setContentIntent(pendingIntent)
+                    .setPriority(NotificationManager.IMPORTANCE_HIGH)
+                    .setAutoCancel(true)
+
+        } else {
+            Notification.Builder(this)
+                    .setContentTitle("DISABLE SNOOZE")
+                    .setContentText("Click to disable snooze")
+                    .setSmallIcon(R.drawable.ic_disable_snooze)
+                    .setContentIntent(pendingIntent)
+                    .setPriority(Notification.PRIORITY_HIGH)
+                    .setAutoCancel(true)
         }
     }
 
