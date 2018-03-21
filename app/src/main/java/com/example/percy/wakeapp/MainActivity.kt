@@ -7,9 +7,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.support.customtabs.CustomTabsClient
 import android.support.customtabs.CustomTabsIntent
-import android.support.customtabs.CustomTabsSession
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.preference.PreferenceManager
 import android.util.Log
@@ -20,9 +18,6 @@ import android.widget.Toast
 import com.example.percy.wakeapp.MathIssueActivity.Companion.CORRECT_ANSWER
 import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
-import android.content.ComponentName
-import android.support.customtabs.CustomTabsServiceConnection
-import android.support.customtabs.CustomTabsCallback
 
 class MainActivity : AppCompatActivity() {
 

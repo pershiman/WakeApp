@@ -7,7 +7,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.example.percy.wakeapp.MainActivity">
+    tools:context="com.example.percy.wakeapp.MainActivity"
+    android:id="@+id/activity_main">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

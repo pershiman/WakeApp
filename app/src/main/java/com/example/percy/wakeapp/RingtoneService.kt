@@ -75,7 +75,8 @@ class RingtoneService : Service() {
         }
     }
 
-    @SuppressLint("NewApi")
+    @Suppress("DEPRECATION")
+    @SuppressLint("NewApi", "WrongConstant")
     private fun createNotification(mNotificationManager: NotificationManager, pendingIntent: PendingIntent?): Notification.Builder {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val mChannel = NotificationChannel(CHANNEL_ID, "someChannelName", NotificationManager.IMPORTANCE_HIGH)
@@ -102,7 +103,7 @@ class RingtoneService : Service() {
 
     private fun startPlayingSound(intent: Intent?) {
         ALARM_NBR = intent!!.getIntExtra("alarmNbr", 0)
-        val alarmType = intent!!.getIntExtra("alarmType", 0)
+        val alarmType = intent.getIntExtra("alarmType", 0)
 
         if (mMediaPlayer != null) {
             mMediaPlayer?.release()
